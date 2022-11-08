@@ -9,7 +9,7 @@ export class Beers extends Component {
 
     state = {
         beers: getBeers(),
-        pageSize: 4,
+        pageSize: 3,
         currentPage: 1
     }
 
@@ -33,7 +33,7 @@ export class Beers extends Component {
 
     render() {
         
-        const { count } = this.state.beers.length
+        const { length: count } = this.state.beers
         const { pageSize, currentPage, beers: allBeers } = this.state;
        
        // const beerCount = this.state.beers.length;
