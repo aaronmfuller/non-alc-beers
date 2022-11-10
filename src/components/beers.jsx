@@ -3,14 +3,23 @@ import { getBeers } from '../services/fakeBeerService'
 import Like from './like';
 import Pagination from './common/pagination'
 import { paginate } from '../utils/paginate';
+import BeerTable from './beerTable';
+import ListGroup from './common/listGroup';
+import { getBeerTypes } from '../services/fakeBeerTypeService';
 
 
 export class Beers extends Component {
 
     state = {
-        beers: getBeers(),
+        beers: [],
         pageSize: 3,
-        currentPage: 1
+        currentPage: 1,
+        beerTypes: []
+    }
+
+    componentDidMount() {
+        const beerTypes = [{ _id: '', name: "All Beer Types" }, ...getBeerTypes()]
+        this.setState({ beers: getBeers(), beerTypes: getBeerTypes() })
     }
 
     handleDelete = beer => {
@@ -31,71 +40,47 @@ export class Beers extends Component {
         this.setState({ currentPage: page });
     }
 
+    handleBeerTypeSelect = beerType => {
+        this.setState({ selectedBeerType: beerType });
+    }
+
     render() {
-        
+
         const { length: count } = this.state.beers
-        const { pageSize, currentPage, beers: allBeers } = this.state;
-       
-       // const beerCount = this.state.beers.length;
+        const { pageSize, currentPage, beers: allBeers, selectedBeerType, beerTypes } = this.state;
+
+        // const beerCount = this.state.beers.length;
 
         if (count === 0) { return <p>There are {count} beers in the database</p> }
 
-        const  beers = paginate(allBeers, currentPage, pageSize);
-      
+        const filtered = 
+        const beers = paginate(allBeers, currentPage, pageSize);
+
         return (
-            <React.Fragment>
-                <p>There are {count} beers in the database</p>
-                <table className="table">
-                    <thead>
-                        <tr>
-                            <th>Brewery</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>In Stock</th>
-                            <th>Price</th>
-                            <th></th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        { beers.map(beer =>
-
-
-                            <tr key={beer._id}>
-                                <td>{beer.brewery}</td>
-                                <td>{beer.name}</td>
-                                <td>{beer.type}</td>
-                                <td>{beer.numberInStock}</td>
-                                <td>{beer.price}</td>
-                                <td><Like
-                                    liked={beer.liked}
-                                    onClick={() => this.handleLike(beer)}
-                                /></td>
-                                <td>
-                                    <button
-                                        onClick={() => this.handleDelete(beer)}
-                                        className="btn btn-danger  btn-sm">Delete</button> </td>
-                            </tr>
-                            
-                        )}
-
-
-                    </tbody>
-
-                </table>
-                <Pagination
-                    itemsCount={count}
-                    pageSize={pageSize}
-                    onPageChange={this.handlePageChange}
-                    currentPage={currentPage}
-
-                />
-
-
-                <div>
+            <div className='row'>
+                <div className="col-2">
+                    <ListGroup
+                        items={beerTypes}
+                        onItemSelect={this.handleBeerTypeSelect}
+                        selectedItem={selectedBeerType}
+                    />
 
                 </div>
-            </React.Fragment>
+                <div className="col">
+                    <p>There are {count} beers in the database</p>
+                    <BeerTable
+                        beers={beers}
+                    />
+
+                    <Pagination
+                        itemsCount={count}
+                        pageSize={pageSize}
+                        onPageChange={this.handlePageChange}
+                        currentPage={currentPage}
+                    />
+
+                </div>
+            </div>
         )
     }
 }
