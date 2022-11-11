@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react';
 
 
 const ListGroup = (props) => {
@@ -19,15 +19,8 @@ ListGroup.defaultProps = {
 textProperty: "name",
 valueProperty: "_id"
 }
+
 export default ListGroup;
-
-
-
-
-
-
-
-
 
 
 

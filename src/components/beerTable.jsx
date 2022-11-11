@@ -1,20 +1,20 @@
-import React, { Component } from 'react'
+import React from 'react'
 import Like from './like';
 
 
 const BeerTable = (props) => {
-    const { beers } = props;
+    const { beers, onDelete, onLike, onSort } = props;
 
     return ( 
 
     <table className="table">
         <thead>
             <tr>
-                <th>Brewery</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>In Stock</th>
-                <th>Price</th>
+                <th onClick={() => onSort("brewery")}>Brewery</th>
+                <th onClick={() => onSort("name")}>Name</th>
+                <th onClick={() => onSort("beerType.name")}>Type</th>
+                <th onClick={() => onSort("numberInStock")}>In Stock</th>
+                <th onClick={() => onSort("price")}>Price</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -24,16 +24,16 @@ const BeerTable = (props) => {
                 <tr key={beer._id}>
                     <td>{beer.brewery}</td>
                     <td>{beer.name}</td>
-                    <td>{beer.type}</td>
+                    <td>{beer.beerType.name}</td>
                     <td>{beer.numberInStock}</td>
                     <td>{beer.price}</td>
                     <td><Like
                         liked={beer.liked}
-                        onClick={() => this.handleLike(beer)}
+                        onClick={() => onLike(beer)}
                     /></td>
                     <td>
                         <button
-                            onClick={() => this.handleDelete(beer)}
+                            onClick={() => onDelete(beer)}
                             className="btn btn-danger  btn-sm">Delete</button> </td>
                 </tr>
             )}

@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { getBeers } from '../services/fakeBeerService'
-import Like from './like';
 import Pagination from './common/pagination'
 import { paginate } from '../utils/paginate';
 import BeerTable from './beerTable';
 import ListGroup from './common/listGroup';
 import { getBeerTypes } from '../services/fakeBeerTypeService';
+import _ from 'lodash';
 
 
 export class Beers extends Component {
@@ -14,12 +14,13 @@ export class Beers extends Component {
         beers: [],
         pageSize: 3,
         currentPage: 1,
-        beerTypes: []
+        beerTypes: [],
+        sortColumn: { path: 'title', order: 'asc' }
     }
 
     componentDidMount() {
-        const beerTypes = [{ _id: '', name: "All Beer Types" }, ...getBeerTypes()]
-        this.setState({ beers: getBeers(), beerTypes: getBeerTypes() })
+        const beerTypes = [{ _id: '', name: "All Beer Types" }, ...getBeerTypes()];
+        this.setState({ beers: getBeers(), beerTypes });
     }
 
     handleDelete = beer => {
@@ -32,7 +33,7 @@ export class Beers extends Component {
         const index = beers.indexOf(beer);
         beers[index] = { ...beers[index] };
         beers[index].liked = !beers[index].liked;
-        this.setState({ beers })
+        this.setState({ beers });
 
     }
 
@@ -41,20 +42,27 @@ export class Beers extends Component {
     }
 
     handleBeerTypeSelect = beerType => {
-        this.setState({ selectedBeerType: beerType });
+        this.setState({ selectedBeerType: beerType, currentPage: 1 });
+    }
+
+    handleSort = path => {
+        // const sorted = _.orderBy() this.setState({ path, order: 'asc' });
+        console.log("handle sort called");
     }
 
     render() {
 
         const { length: count } = this.state.beers
-        const { pageSize, currentPage, beers: allBeers, selectedBeerType, beerTypes } = this.state;
+        const { pageSize, currentPage, beers: allBeers, selectedBeerType, beerTypes, sortColumn } = this.state;
 
-        // const beerCount = this.state.beers.length;
+        const filtered = selectedBeerType && selectedBeerType._id ? allBeers.filter(b => b.beerType._id === selectedBeerType._id) :
+            allBeers;
 
-        if (count === 0) { return <p>There are {count} beers in the database</p> }
+        const sorted = _.orderBy(filtered, [sortColumn.path], [sortColumn.order]);
+        console.log(sorted);
+        const beers = paginate(sorted, currentPage, pageSize);
 
-        const filtered = 
-        const beers = paginate(allBeers, currentPage, pageSize);
+        if (count === 0) { return <p>There are no beers in the database</p> }
 
         return (
             <div className='row'>
@@ -67,13 +75,16 @@ export class Beers extends Component {
 
                 </div>
                 <div className="col">
-                    <p>There are {count} beers in the database</p>
+                    <p>There are {filtered.length} beers in the database</p>
                     <BeerTable
                         beers={beers}
+                        onLike={this.handleLike}
+                        onDelete={this.handleDelete}
+                        onSort={this.handleSort}
                     />
 
                     <Pagination
-                        itemsCount={count}
+                        itemsCount={filtered.length}
                         pageSize={pageSize}
                         onPageChange={this.handlePageChange}
                         currentPage={currentPage}
